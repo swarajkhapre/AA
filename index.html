@@ -2274,7 +2274,7 @@ function switchExam(exam, evt) {
     currentExam = exam;
     const tabs = document.querySelectorAll('.exam-tab');
     tabs.forEach(t => t.classList.remove('active'));
-    (evt ? evt.target : event.target).classList.add('active');
+    evt.target.classList.add('active');
     
     renderNav();
     // Load first topic
@@ -2349,9 +2349,9 @@ function updateProgress() {
 
 // Mobile sidebar toggle
 (function(){
-  var btn = document.getElementById('menu-btn');
-  var sidebar = document.getElementById('sidebar');
-  var overlay = document.getElementById('sidebar-overlay');
+  const btn = document.getElementById('menu-btn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
   if(!btn||!sidebar||!overlay) return;
   btn.addEventListener('click', function(){
     sidebar.classList.toggle('open');
