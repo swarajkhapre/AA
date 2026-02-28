@@ -224,12 +224,79 @@ border-radius:var(--radius);padding:20px;
 .vs-card h4{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .vs-card p,.vs-card li{font-size:13px}
 
+/* HAMBURGER BUTTON */
+.menu-btn{
+display:none;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);
+color:var(--text);font-size:22px;padding:4px 10px;cursor:pointer;
+}
+
+/* SIDEBAR OVERLAY */
+.sidebar-overlay{
+display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,0.5);
+}
+.sidebar-overlay.active{display:block}
+
 /* RESPONSIVE */
 @media(max-width:900px){
 .app-layout{grid-template-columns:1fr}
 .sidebar{position:relative;top:0;height:auto;max-height:50vh}
 .main-content{padding:24px 20px 60px}
 .vs-grid{grid-template-columns:1fr}
+}
+
+/* ===== MOBILE FIXES ===== */
+@media (max-width: 600px) {
+
+  .menu-btn{display:block}
+
+  /* Header: allow wrap + reduce spacing */
+  .top-header{
+    padding: 10px 14px;
+    height: auto;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Tabs: prevent overflow by allowing horizontal scroll */
+  .exam-tabs{
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .exam-tab{
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  /* Sidebar: off-canvas drawer on mobile */
+  .sidebar{
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    max-height: none;
+    z-index: 95;
+    padding: 14px 12px;
+    transition: left .3s ease;
+  }
+  .sidebar.open{
+    left: 0;
+  }
+
+  /* Main content: smaller padding and title */
+  .main-content{ padding: 18px 14px 50px; }
+  .content-header h1{ font-size: 26px; }
+
+  /* Tables: allow sideways scroll instead of breaking layout */
+  .data-table{
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
 }
 
 /* ANIMATIONS */
@@ -241,13 +308,14 @@ border-radius:var(--radius);padding:20px;
 
 <!-- TOP HEADER -->
 <header class="top-header">
+  <button class="menu-btn" id="menu-btn" aria-label="Toggle menu">☰</button>
   <div class="logo">
     <div class="logo-icon">A</div>
     <div class="logo-text">Adobe <span>Cert</span> Mastery</div>
   </div>
   <div class="exam-tabs">
-    <button class="exam-tab active" onclick="switchExam('aa')">AD0-E212 · Adobe Analytics</button>
-    <button class="exam-tab" onclick="switchExam('cja')">AD0-E608 · CJA</button>
+    <button class="exam-tab active" onclick="switchExam('aa',event)">AD0-E212 · Adobe Analytics</button>
+    <button class="exam-tab" onclick="switchExam('cja',event)">AD0-E608 · CJA</button>
   </div>
   <div class="header-meta">
     <div class="progress-ring">
@@ -257,9 +325,11 @@ border-radius:var(--radius);padding:20px;
   </div>
 </header>
 
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
 <div class="app-layout">
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="search-box">
       <span class="search-icon">⌕</span>
       <input type="text" id="search" placeholder="Search topics..." oninput="filterNav()">
@@ -2200,11 +2270,11 @@ function checkQuiz(btn, type) {
 let currentExam = 'aa';
 let currentTopic = '';
 
-function switchExam(exam) {
+function switchExam(exam, evt) {
     currentExam = exam;
     const tabs = document.querySelectorAll('.exam-tab');
     tabs.forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    evt.target.classList.add('active');
     
     renderNav();
     // Load first topic
@@ -2276,6 +2346,28 @@ function updateProgress() {
     const offset = circumference - (progress / 100) * circumference;
     progressCircle.style.strokeDashoffset = offset;
 }
+
+// Mobile sidebar toggle
+(function(){
+  const btn = document.getElementById('menu-btn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if(!btn||!sidebar||!overlay) return;
+  btn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  });
+  overlay.addEventListener('click', function(){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+  sidebar.addEventListener('click', function(e){
+    if(e.target.closest('.nav-item')){
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+  });
+})();
 </script>
 </body>
 </html>
